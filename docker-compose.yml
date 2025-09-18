@@ -1,0 +1,49 @@
+services:
+  db:
+    image: mariadb:10.11
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-garment_app}
+      MYSQL_USER: ${DB_USER:-garment}
+      MYSQL_PASSWORD: ${DB_PASS:-garment_pass}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS:-root_pass}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "${HOST_IP:-0.0.0.0}:${APP_PORT:-8080}:80"
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-garment_app}
+      DB_USER: ${DB_USER:-garment}
+      DB_PASS: ${DB_PASS:-garment_pass}
+      TZ: ${TZ:-Asia/Colombo}
+    volumes:
+      - app_uploads:/var/www/html/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    restart: unless-stopped
+    ports:
+      - "${HOST_IP:-0.0.0.0}:${PMA_PORT:-8081}:80"
+    environment:
+      PMA_HOST: db
+      UPLOAD_LIMIT: 64M
+    depends_on:
+      - db
+
+volumes:
+  db_data:
+  app_uploads:
