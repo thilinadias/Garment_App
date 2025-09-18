@@ -1,0 +1,6 @@
+.env
+app/uploads/
+app/uploads/*
+**/.DS_Store
+*.log
+*.zip
