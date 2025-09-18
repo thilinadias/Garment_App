@@ -1,0 +1,1 @@
+<?php require_once __DIR__ . '/../config/auth.php'; ensure_login(); ensure_role(['admin','manager']); $id=(int)($_POST['id']??0); if($id){ $pdo->prepare('DELETE FROM factories WHERE id=?')->execute([$id]); log_event('factory_delete','factory',$id,null);} header('Location: '.url('factories/index.php')); exit;

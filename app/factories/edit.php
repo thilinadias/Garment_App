@@ -1,0 +1,12 @@
+<?php require_once __DIR__ . '/../config/auth.php'; ensure_login(); ensure_role(['admin','manager']); $id=(int)($_GET['id']??0); $st=$pdo->prepare("SELECT * FROM factories WHERE id=?"); $st->execute([$id]); $f=$st->fetch();
+if(!$f){ http_response_code(404); echo 'Factory not found'; exit; } $msg=''; $ok=false; if($_SERVER['REQUEST_METHOD']==='POST'){ $name=trim($_POST['name']??''); $contact=trim($_POST['contact_person']??''); $phone=trim($_POST['phone']??''); $email=trim($_POST['email']??''); $address=trim($_POST['address']??''); $notes=trim($_POST['notes']??'');
+ $pdo->prepare("UPDATE factories SET name=?,contact_person=?,phone=?,email=?,address=?,notes=? WHERE id=?")->execute([$name,$contact,$phone,$email,$address,$notes,$id]); log_event('factory_update','factory',$id,null); $ok=true; $msg='Factory updated.'; $st->execute([$id]); $f=$st->fetch(); }
+include __DIR__ . '/../includes/header.php'; ?>
+<div class="card p-3"><h4 class="mb-3">Edit Factory</h4><?php if($msg):?><div class="alert <?php echo $ok?'alert-success':'alert-danger';?>"><?php echo h($msg);?></div><?php endif;?>
+<form method="post" class="row g-3"><div class="col-md-6"><label class="form-label">Factory Name</label><input class="form-control" name="name" value="<?php echo h($f['name']);?>" required></div>
+<div class="col-md-6"><label class="form-label">Contact Person</label><input class="form-control" name="contact_person" value="<?php echo h($f['contact_person']);?>"></div>
+<div class="col-md-4"><label class="form-label">Phone</label><input class="form-control" name="phone" value="<?php echo h($f['phone']);?>"></div>
+<div class="col-md-4"><label class="form-label">Email</label><input type="email" class="form-control" name="email" value="<?php echo h($f['email']);?>"></div>
+<div class="col-md-4"><label class="form-label">Address</label><input class="form-control" name="address" value="<?php echo h($f['address']);?>"></div>
+<div class="col-12"><label class="form-label">Notes</label><textarea class="form-control" rows="3" name="notes"><?php echo h($f['notes']);?></textarea></div>
+<div class="col-12 d-flex justify-content-end"><button class="btn btn-primary">Save</button></div></form></div><?php include __DIR__ . '/../includes/footer.php'; ?>
