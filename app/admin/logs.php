@@ -1,0 +1,14 @@
+<?php require_once __DIR__ . '/../config/auth.php'; ensure_login(); ensure_role('admin');
+$user_q=$_GET['user_id']??''; $action_q=$_GET['action']??''; $from=$_GET['from']??''; $to=$_GET['to']??'';
+$params=[]; $where=[]; if($user_q!==''){ $where[]='l.user_id = ?'; $params[]=(int)$user_q; } if($action_q!==''){ $where[]='l.action = ?'; $params[]=$action_q; } if($from){ $where[]='DATE(l.created_at) >= ?'; $params[]=$from; } if($to){ $where[]='DATE(l.created_at) <= ?'; $params[]=$to; }
+$whereSql=$where?('WHERE '.implode(' AND ',$where)):''; $sql="SELECT l.*, u.username FROM app_logs l LEFT JOIN users u ON l.user_id=u.id $whereSql ORDER BY l.id DESC LIMIT 500"; $st=$pdo->prepare($sql); $st->execute($params); $rows=$st->fetchAll();
+$users=$pdo->query('SELECT id,username FROM users ORDER BY username')->fetchAll(); $actions=$pdo->query('SELECT DISTINCT action FROM app_logs ORDER BY action')->fetchAll(PDO::FETCH_COLUMN);
+include __DIR__ . '/../includes/header.php'; ?>
+<div class="card p-3"><div class="d-flex justify-content-between align-items-center mb-3"><h4 class="mb-0">Application Logs</h4></div>
+<form method="get" class="row g-2 mb-3"><div class="col-md-3"><label class="form-label">User</label><select class="form-select" name="user_id"><option value="">All</option><?php foreach($users as $u):?><option value="<?php echo (int)$u['id'];?>" <?php echo $user_q==$u['id']?'selected':'';?>><?php echo h($u['username']);?></option><?php endforeach;?></select></div>
+<div class="col-md-3"><label class="form-label">Action</label><select class="form-select" name="action"><option value="">All</option><?php foreach($actions as $a):?><option value="<?php echo h($a);?>" <?php echo $action_q===$a?'selected':'';?>><?php echo h($a);?></option><?php endforeach;?></select></div>
+<div class="col-md-2"><label class="form-label">From</label><input type="date" class="form-control" name="from" value="<?php echo h($from); ?>"></div>
+<div class="col-md-2"><label class="form-label">To</label><input type="date" class="form-control" name="to" value="<?php echo h($to); ?>"></div>
+<div class="col-md-2 d-flex align-items-end"><button class="btn btn-outline-primary">Filter</button></div></form>
+<div class="table-responsive"><table class="table table-sm"><thead><tr><th>ID</th><th>Time</th><th>User</th><th>Action</th><th>Entity</th><th>Entity ID</th><th>IP</th><th>Details</th></tr></thead><tbody>
+<?php foreach($rows as $r):?><tr><td><?php echo (int)$r['id'];?></td><td><?php echo h($r['created_at']);?></td><td><?php echo h($r['username']);?></td><td><span class="badge bg-secondary"><?php echo h($r['action']);?></span></td><td><?php echo h($r['entity_type']);?></td><td><?php echo h($r['entity_id']);?></td><td><?php echo h($r['ip']);?></td><td><code class="small"><?php echo h($r['details']);?></code></td></tr><?php endforeach; ?></tbody></table></div></div><?php include __DIR__ . '/../includes/footer.php'; ?>
