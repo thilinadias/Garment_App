@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/auth.php';
+require_once __DIR__ . '/../config/app.php';
 $u = current_user();
 $logo = app_setting('company_logo');
 $company = app_setting('company_name') ?: 'Garment App';
