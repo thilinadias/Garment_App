@@ -1,0 +1,1 @@
+<?php require_once __DIR__ . '/../config/auth.php'; ensure_login(); $id=(int)($_POST['id']??0); $status=$_POST['status']??'New'; if($id){ $pdo->prepare('UPDATE jobs SET status=?, updated_at=NOW() WHERE id=?')->execute([$status,$id]); log_event('job_status','job',$id,['status'=>$status]); } header('Location: '.url('jobs/index.php')); exit;
