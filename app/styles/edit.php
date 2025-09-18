@@ -1,0 +1,6 @@
+<?php require_once __DIR__ . '/../config/auth.php'; ensure_login(); ensure_role(['admin','manager']); $id=(int)($_GET['id']??0);
+$st=$pdo->prepare("SELECT * FROM styles WHERE id=?"); $st->execute([$id]); $s=$st->fetch(); if(!$s){ http_response_code(404); echo 'Not found'; exit; }
+$msg=''; $ok=false; if($_SERVER['REQUEST_METHOD']==='POST'){ $name=trim($_POST['name']??''); $pdo->prepare("UPDATE styles SET name=? WHERE id=?")->execute([$name,$id]); log_event('style_update','style',$id,null); $ok=true; $msg='Style updated.'; $st->execute([$id]); $s=$st->fetch(); }
+include __DIR__ . '/../includes/header.php'; ?>
+<div class="card p-3"><h4 class="mb-3">Edit Style</h4><?php if($msg):?><div class="alert <?php echo $ok?'alert-success':'alert-danger';?>"><?php echo h($msg);?></div><?php endif;?>
+<form method="post" class="row g-3"><div class="col-md-6"><label class="form-label">Name</label><input class="form-control" name="name" value="<?php echo h($s['name']);?>" required></div><div class="col-12 d-flex justify-content-end"><button class="btn btn-primary">Save</button></div></form></div><?php include __DIR__ . '/../includes/footer.php'; ?>

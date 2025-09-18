@@ -1,0 +1,1 @@
+<?php require_once __DIR__ . '/../config/auth.php'; ensure_login(); ensure_role(['admin','manager']); $id=(int)($_POST['id']??0); if($id && $id!=(int)(current_user()['id']??0)){ $pdo->prepare('DELETE FROM users WHERE id=?')->execute([$id]); log_event('user_delete','user',$id,null);} header('Location: '.url('users/index.php')); exit;

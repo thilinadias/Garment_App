@@ -1,0 +1,1 @@
+<?php require_once __DIR__ . '/../config/auth.php'; ensure_login(); ensure_role(['admin','manager']); $id=(int)($_POST['id']??0); if($id){ $pdo->prepare('DELETE FROM styles WHERE id=?')->execute([$id]); log_event('style_delete','style',$id,null);} header('Location: '.url('styles/index.php')); exit;

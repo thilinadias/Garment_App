@@ -1,0 +1,9 @@
+<?php require_once __DIR__ . '/../config/auth.php'; ensure_login(); ensure_role(['admin','manager']);
+$rows=$pdo->query("SELECT id,name,email,username,role,phone,created_at FROM users ORDER BY id DESC")->fetchAll(); include __DIR__ . '/../includes/header.php'; ?>
+<div class="card p-3"><div class="d-flex justify-content-between align-items-center mb-3"><h4 class="mb-0">Users</h4><a class="btn btn-primary btn-sm" href="<?php echo url('users/create.php'); ?>">Add User</a></div>
+<div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Username</th><th>Phone</th><th>Role</th><th>Created</th><th></th></tr></thead><tbody>
+<?php foreach($rows as $r):?><tr><td><?php echo (int)$r['id'];?></td><td><?php echo h($r['name']);?></td><td><?php echo h($r['email']);?></td><td><?php echo h($r['username']);?></td><td><?php echo h($r['phone']);?></td>
+<td><span class="badge bg-secondary"><?php echo h($r['role']);?></span></td><td><?php echo h($r['created_at']);?></td><td class="text-end">
+<a class="btn btn-sm btn-outline-primary" href="<?php echo url('users/edit.php'); ?>?id=<?php echo (int)$r['id'];?>">Edit</a>
+<?php if($r['id']!=(current_user()['id']??0)):?><form method="post" action="<?php echo url('users/delete.php'); ?>" class="d-inline" onsubmit="return confirm('Delete this user?');"><input type="hidden" name="id" value="<?php echo (int)$r['id'];?>"><button class="btn btn-sm btn-outline-danger">Delete</button></form><?php endif; ?>
+</td></tr><?php endforeach; ?></tbody></table></div></div><?php include __DIR__ . '/../includes/footer.php'; ?>

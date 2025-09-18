@@ -1,0 +1,5 @@
+<?php require_once __DIR__ . '/../config/auth.php'; ensure_login(); ensure_role(['admin','manager']); $msg=''; $ok=false;
+if($_SERVER['REQUEST_METHOD']==='POST'){ $name=trim($_POST['name']??''); if(!$name){$msg='Name required.';} else{ $pdo->prepare("INSERT INTO styles (name) VALUES (?)")->execute([$name]); log_event('style_create','style',$pdo->lastInsertId(),null); $ok=true; $msg='Style created.'; } }
+include __DIR__ . '/../includes/header.php'; ?>
+<div class="card p-3"><h4 class="mb-3">Add Style</h4><?php if($msg):?><div class="alert <?php echo $ok?'alert-success':'alert-danger';?>"><?php echo h($msg);?></div><?php endif;?>
+<form method="post" class="row g-3"><div class="col-md-6"><label class="form-label">Name</label><input class="form-control" name="name" required></div><div class="col-12 d-flex justify-content-end"><button class="btn btn-primary">Save</button></div></form></div><?php include __DIR__ . '/../includes/footer.php'; ?>
